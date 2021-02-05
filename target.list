@@ -1,0 +1,5 @@
+TYPE.GLOBAL
+.*DBUS.*
+.*Dbus_client.*
+.*Dbus_server.*
+.*COMPILE.*

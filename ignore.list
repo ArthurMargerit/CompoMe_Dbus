@@ -1,0 +1,6 @@
+GEN:.*Dbus_client.*
+GEN:.*Dbus_server.*
+GEN:TYPE\.CompoMe::String\.DBUS$
+GEN:TYPE\.bool\.DBUS$
+GEN:TYPE\.float\.DBUS$
+GEN:TYPE\..*\.H\.DBUS$

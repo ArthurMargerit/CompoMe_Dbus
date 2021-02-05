@@ -1,0 +1,45 @@
+- IMPORT: CompoMe.yaml
+
+
+- CP: IMPORTS.*.MAIN.TYPES.i8 TYPES.i8
+- CP: IMPORTS.*.MAIN.TYPES.i16 TYPES.i16
+- CP: IMPORTS.*.MAIN.TYPES.i32 TYPES.i32
+- CP: IMPORTS.*.MAIN.TYPES.i64 TYPES.i64
+
+- CP: IMPORTS.*.MAIN.TYPES.ui8 TYPES.ui8
+- CP: IMPORTS.*.MAIN.TYPES.ui16 TYPES.ui16
+- CP: IMPORTS.*.MAIN.TYPES.ui32 TYPES.ui32
+- CP: IMPORTS.*.MAIN.TYPES.ui64 TYPES.ui64
+
+- CP: IMPORTS.*.MAIN.TYPES.bool TYPES.Bool
+- CP: IMPORTS.*.MAIN.TYPES.double TYPES.double
+- CP: IMPORTS.*.MAIN.TYPES.float TYPES.float
+
+- CP: IMPORTS.*.MAIN.TYPES.CompoMe::String TYPES.CompoMe::String
+
+# collection
+- CP: IMPORTS.*.MAIN.TYPES.Vec TYPES.Vec
+- CP: IMPORTS.*.MAIN.TYPES.Set TYPES.Set
+- CP: IMPORTS.*.MAIN.TYPES.Map TYPES.Map
+- CP: IMPORTS.*.MAIN.TYPES.Array TYPES.Array
+
+- CP: IMPORTS.*.MAIN.TYPES.Pair TYPES.Pair
+- CP: IMPORTS.*.MAIN.TYPES.Tuple TYPES.Tuple
+
+- LINK:
+    NAME: Dbus_client
+    CALLER_KIND: Dbus_out
+    DATA:
+      - CompoMe::String object_name
+      - i32 timeout
+    PORT:
+      - DBUS_OUT
+
+- LINK:
+    NAME: Dbus_server
+    CALLER_KIND: Dbus_in
+    DATA:
+      - CompoMe::String object_name
+    PORT:
+      - DBUS_IN
+
