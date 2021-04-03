@@ -26,20 +26,32 @@
 - CP: IMPORTS.*.MAIN.TYPES.Pair TYPES.Pair
 - CP: IMPORTS.*.MAIN.TYPES.Tuple TYPES.Tuple
 
+- PORT:
+    NAME: Dbus_port_in
+    KIND: FUNCTION_IN
+    KEY:
+      - CompoMe::String k_compo
+      - CompoMe::String k_inter
+
+- PORT:
+    NAME: Dbus_port_out
+    KIND: FUNCTION_OUT
+    KEY:
+      - CompoMe::String k_compo
+      - CompoMe::String k_inter
+
 - LINK:
     NAME: Dbus_client
-    CALLER_KIND: Dbus_out
     DATA:
       - CompoMe::String object_name
       - i32 timeout
     PORT:
-      - DBUS_OUT
+      - Dbus_port_out bus
 
 - LINK:
     NAME: Dbus_server
-    CALLER_KIND: Dbus_in
     DATA:
       - CompoMe::String object_name
     PORT:
-      - DBUS_IN
+      - Dbus_port_in bus
 
