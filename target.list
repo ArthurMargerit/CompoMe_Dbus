@@ -2,4 +2,6 @@ TYPE.GLOBAL
 .*DBUS.*
 .*Dbus_client.*
 .*Dbus_server.*
+.*DBus_port_out.*
+.*DBus_port_in.*
 .*COMPILE.*

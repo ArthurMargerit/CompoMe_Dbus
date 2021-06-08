@@ -1,11 +1,9 @@
-#include "Links/Dbus_server/Dbus_server.hpp"
 
+#include "Links/Dbus_server/Dbus_server.hpp"
 #include "CompoMe/Log.hpp"
-#include "Interfaces/Caller_dbus.hpp"
 #include "Interfaces/Function_dbus_recv.hpp"
 #include "Interfaces/Interface.hpp"
 #include "Interfaces/Return_dbus_send.hpp"
-#include <sstream>
 
 class Function_dbus_recv_i : public CompoMe::Function_dbus_recv {
 
@@ -68,7 +66,7 @@ public:
 Dbus_server::Dbus_server() : CompoMe::Link() {}
 
 Dbus_server::~Dbus_server() {}
-
+#include <iostream>
 void Dbus_server::step() {
   Link::step();
   dbus_connection_read_write(this->conn, 0);
@@ -86,8 +84,7 @@ void Dbus_server::step() {
     if (msgr.get_interface() == "org.freedesktop.DBus.Introspectable") {
       C_INFO_TAG("dbus,server", "Instrospection of ", msgr.get_path());
       this->introspection(msgr, replyr);
-    } else if (!this->get_bus().is_connected_interface(msgr.get_path(),
-                                                       msgr.get_interface())) {
+    } else if (!this->connected(msgr.get_path(), msgr.get_interface())) {
       C_ERROR_TAG("dbus,server", "Not connected in the link... ",
                   msgr.get_path(), ":", msgr.get_interface(), ".",
                   msgr.get_member());
@@ -95,10 +92,8 @@ void Dbus_server::step() {
     } else {
       C_INFO_TAG("dbus,server", "call :", msgr.get_interface(), ".",
                  msgr.get_function(), "(", msgr.get_signature(), ")");
-      this->get_bus()
-          .get_interface(msgr.get_path(), msgr.get_interface())
-          .get_caller_dbus()
-          ->call(msgr, replyr);
+      this->get_caller(msgr.get_path(), msgr.get_interface())
+          .call(msgr, replyr);
 
       C_INFO_TAG("dbus,server", "answer :", replyr.get_signature());
     }
@@ -110,8 +105,8 @@ void Dbus_server::step() {
   }
 }
 
-void Dbus_server::main_connect() {
-  Link::main_connect();
+void Dbus_server::connect() {
+  Link::connect();
   DBusError err;
 
   dbus_error_init(&err);
@@ -124,7 +119,7 @@ void Dbus_server::main_connect() {
   }
 
   if (NULL == this->conn) {
-    C_ERROR("Connection to DBus is Null");
+    C_ERROR("Connection Null");
     return;
   }
 
@@ -139,46 +134,49 @@ void Dbus_server::main_connect() {
   C_INFO("Dbus server Connecected");
 }
 
-void Dbus_server::main_disconnect() {
-  Link::main_disconnect();
+void Dbus_server::disconnect() {
+  Link::disconnect();
   dbus_connection_unref(this->conn);
   C_INFO("dbus connection is cut");
 }
-#include <iostream>
-void Dbus_server::introspection(CompoMe::Function_dbus_recv &msg,
-                                CompoMe::Return_dbus_send &reply) {
+
+// Get and set /////////////////////////////////////////////////////////////
+
+CompoMe::String Dbus_server::get_object_name() const {
+  return this->object_name;
+}
+
+void Dbus_server::set_object_name(const CompoMe::String p_object_name) {
+  this->object_name = p_object_name;
+}
+
+CompoMe::String &Dbus_server::a_object_name() { return this->object_name; }
+
+void Dbus_server::introspection(Function_dbus_recv_i &msg,
+                                Return_dbus_send_i &reply) {
+
   std::stringstream ss;
   ss << "<node>";
   ss << "<interface name=\"org.freedesktop.DBus.Introspectable\"><method "
         "name=\"Introspect\"><arg type=\"s\" name=\"xml_data\" "
         "direction=\"out\"/></method></interface>";
-  for (auto &kv2 : this->get_bus().get_interfaces_list()) {
-    if (std::get<0>(kv2.first) == msg.get_path()) {
-      ss << "\t<interface name=" << std::get<1>(kv2.first) << ">";
-      kv2.second->get_caller_dbus()->introspection(ss);
-      ss << "</interface>\n";
-    }
+  for (auto &kv2 : this->a_c[msg.get_path()]) {
+    ss << "\t<interface name=\"" << kv2.first << "\">";
+    kv2.second->introspection(ss);
+    ss << "</interface>\n";
   }
 
-  std::set<CompoMe::String> already_note;
-
-  for (auto &kv : this->get_bus().get_interfaces_list()) {
-    if (std::get<0>(kv.first) == msg.get_path()) {
+  for (auto &kv : this->a_c) {
+    if (kv.first == msg.get_path()) {
       continue;
     }
 
-    if (already_note.end() != already_note.find(std::get<0>(kv.first))) {
-      continue;
-    }
-
-    int p = std::get<0>(kv.first).str.find(msg.get_path());
+    int p = kv.first.find(msg.get_path());
     if (p != std::string::npos) {
-      already_note.insert(std::get<0>(kv.first));
-      ss << "<node name=\""
-         << std::get<0>(kv.first).str.substr(msg.get_path().length()) << "\"/>";
+      ss << "<node name=\"" << kv.first.substr(msg.get_path().length())
+         << "\"/>";
     }
   }
-
   ss << "</node>";
   std::string ts = ss.str();
   reply.get_so() << CompoMe::String(ts);

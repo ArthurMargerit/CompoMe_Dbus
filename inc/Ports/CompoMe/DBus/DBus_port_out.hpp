@@ -1,0 +1,61 @@
+#pragma once
+
+#include "Ports/CompoMe/Core/DCI_map_out.hpp"
+
+// TYPES
+
+// d.D_NAME
+
+#include "Types/CompoMe/String.hpp"
+
+// STRUCT
+
+namespace CompoMe {
+
+namespace DBus {
+
+class DBus_port_out : public CompoMe::Core::DCI_map_out {
+public:
+  //! Default constructor
+  DBus_port_out();
+
+  //! Destructor
+  virtual ~DBus_port_out() noexcept;
+
+  // FUNCTION OUT//////////////////////////////////////////////////////////////
+  virtual bool connect_require(CompoMe::String dest_key,
+                               CompoMe::String component_key,
+                               CompoMe::String interface_key,
+                               CompoMe::Require_helper &p_r);
+
+  virtual CompoMe::Require_helper &get_require(CompoMe::String dest_key,
+                                               CompoMe::String component_key,
+                                               CompoMe::String interface_key);
+
+  std::map<std::tuple<CompoMe::String, CompoMe::String, CompoMe::String>,
+           CompoMe::Require_helper *>
+  get_require_list();
+
+  virtual bool is_connected_require(CompoMe::Require_helper &p_i);
+  virtual bool is_connected_require(CompoMe::String dest_key,
+                                    CompoMe::String component_key,
+                                    CompoMe::String interface_key);
+
+  virtual bool disconnect_require(CompoMe::String dest_key,
+                                  CompoMe::String component_key,
+                                  CompoMe::String interface_key);
+  virtual bool disconnect_require(CompoMe::Require_helper &p_r);
+
+  // FUNCTION /////////////////////////////////////////////////////////////////
+
+  // GET/SET //////////////////////////////////////////////////////////////////
+
+private:
+  // YOU PRIVATE DATA//////////////////////////////////////////////////////////
+
+  //---------------------------------------------------------------------------
+};
+
+} // namespace DBus
+
+} // namespace CompoMe

@@ -1,4 +1,5 @@
 - IMPORT: CompoMe.yaml
+- IMPORT: CompoMe_Port.yaml
 
 
 - CP: IMPORTS.*.MAIN.TYPES.i8 TYPES.i8
@@ -27,18 +28,21 @@
 - CP: IMPORTS.*.MAIN.TYPES.Tuple TYPES.Tuple
 
 - PORT:
-    NAME: Dbus_port_in
+    NAME: CompoMe::DBus::DBus_port_in
+    PARENT: CompoMe::Core::CI_map_in
     KIND: FUNCTION_IN
     KEY:
-      - CompoMe::String k_compo
-      - CompoMe::String k_inter
+      - CompoMe::String component_key
+      - CompoMe::String interface_key
 
 - PORT:
-    NAME: Dbus_port_out
+    NAME: CompoMe::DBus::DBus_port_out
+    PARENT: CompoMe::Core::DCI_map_out
     KIND: FUNCTION_OUT
     KEY:
-      - CompoMe::String k_compo
-      - CompoMe::String k_inter
+      - CompoMe::String dest_key
+      - CompoMe::String component_key
+      - CompoMe::String interface_key
 
 - LINK:
     NAME: Dbus_client
@@ -46,12 +50,12 @@
       - CompoMe::String object_name
       - i32 timeout
     PORT:
-      - Dbus_port_out bus
+      - CompoMe::DBus::DBus_port_out bus
 
 - LINK:
     NAME: Dbus_server
     DATA:
       - CompoMe::String object_name
     PORT:
-      - Dbus_port_in bus
+      - CompoMe::DBus::DBus_port_in bus
 
